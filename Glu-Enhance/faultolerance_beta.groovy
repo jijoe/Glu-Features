@@ -77,11 +77,12 @@ class faulttolerance {
 
 	def boolean isServerAvail() {
 		log.info("Started isServerAvail")
-		isServerup() == null // JV: If == null, server is down, not available
+		isServerup() == null // JV: If == null, server is down, not available GD: Agent is down means No control over node.
 		log.info("Ending isServerAvail")
 	}
 
 	// JV: This is doing the same function as isStale* method. Combine them into one.
+	//GD: Still working on how to pass argument into a function or in a clouser in groovy.
 	def Integer isServerup() {
 		log.info("started isServerup()")
 
@@ -113,7 +114,7 @@ class faulttolerance {
 		// JV: There seems to be a flaw in the logic here. The requirement is to maintain a *total* # of service instances
 		// across the machines in a data center. Here, the program is looking for a # of service instance *per server*.
 		// This implies at least one instance of every service must run on each server, which is not a requirement.
-		//GD: Thanks Jijoe , I have corrected the logic for mainataining the total no of services running in a DC not on server level.
+		//GD: Thanks Jijoe , I have corrected the logic for maintaining the total no of services running in a DC not on server level.
 		log.info("started Do retry")
 
 		log.info("Started ServRunning passing ${NodeName} ${params.servicename}")
@@ -192,14 +193,14 @@ class faulttolerance {
 
 		// This funtion will shift the service to stale node.
 
-		//1. we ll check wheather the port is availaible or not.
+		//1. we ll check whether the port is available or not.
 		log.info("started shiftstaleNode")
 		// JV: The function name isPortAvailonStaleNode() doesn't make sense. if isPortAvailonStaleNode returns true,
 		// it means the port # was null, not a valid port #, yes? If so, logic inside isPortAvailonStaleNode function
 		// should be inverted
 		//GD : Logic inverted
 		if (isPortAvailonStaleNode()) {
-			//Port is availaible. We ll shift to this.
+			//Port is available. We ll shift to this.
 			log.info("started service on stale node")
 			def reqServiceNo = params.reqServiceNo
 			log.info(" got output ${output} requested no of services to be running are = ${reqServiceNo}")
@@ -284,6 +285,7 @@ class faulttolerance {
 		shell.exec(" sh /cacheDir/glu_scripts/execPlan.sh ${plans} ")
 		//3. Plan has been executed now. Service should be started now.
 		// JV: Trust, but verify :) Do an explicit check that service indeed started at ${portToRun} on ${params.stalenode}
+		//GD: Will do
 		log.info("${params.servicename} Service has been started on ${params.stalenode} using ${portToRun} port")
 	}
 
@@ -334,7 +336,7 @@ class faulttolerance {
 		}
 	}
 
-	// JV: Checks if server is...what?
+
 
 	def shiftonNextNode = {
 
@@ -342,9 +344,6 @@ class faulttolerance {
 
 		//1. we ll check wheather the port is availaible or not.
 		log.info("started shiftonNextNode")
-		// JV: The function name isPortAvailonStaleNode() doesn't make sense. if isPortAvailonStaleNode returns true,
-		// it means the port # was null, not a valid port #, yes? If so, logic inside isPortAvailonStaleNode function
-		// should be inverted
 		if (isPortAvailonNextNode()) {
 			//Port is availaible. We ll shift to this.
 			log.info("started service on stale node")
